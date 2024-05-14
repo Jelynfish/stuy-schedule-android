@@ -24,18 +24,24 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
     private val _uiState = MutableStateFlow(UIState())
     val uiState: StateFlow<UIState> = _uiState
 
+    init {
+        parseLocalSchedule("local.json")
+    }
     private fun parseLocalSchedule(file: String) {
         val jsonString = getApplication<Application>()
-            .assets.open("local.json")
+            .assets.open(file)
             .bufferedReader()
             .use {
                 it.readText()
             }
         val schedule = Gson().fromJson(jsonString, ApiData::class.java)
+        _uiState.value = _uiState.value.copy(
+            schedule = schedule
+        )
     }
 }
 
 data class UIState(
     val schedule: ApiData? = null,
-    val mode: Int = 0
+    val mode: Int = 0 //light mode = 0, dark mode = 1
 )
