@@ -1,4 +1,4 @@
-package com.jelynfish.stuyscheduleapp.ui.theme
+package com.jelynfish.stuyschedule.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

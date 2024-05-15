@@ -1,4 +1,4 @@
-package com.jelynfish.stuyscheduleapp.api
+package com.jelynfish.stuyschedule.api
 
 data class ApiData(
     val scheduleType: String,

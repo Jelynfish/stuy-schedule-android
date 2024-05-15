@@ -1,4 +1,4 @@
-package com.jelynfish.stuyscheduleapp
+package com.jelynfish.stuyschedule
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,10 +18,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.jelynfish.stuyscheduleapp.ui.ScheduleVM
-import com.jelynfish.stuyscheduleapp.ui.screens.DetailScreen
-import com.jelynfish.stuyscheduleapp.ui.screens.HomeScreen
-import com.jelynfish.stuyscheduleapp.ui.screens.SettingsScreen
+import com.jelynfish.stuyschedule.ui.ScheduleVM
+import com.jelynfish.stuyschedule.ui.screens.DetailScreen
+import com.jelynfish.stuyschedule.ui.screens.HomeScreen
+import com.jelynfish.stuyschedule.ui.screens.SettingsScreen
+import com.jelynfish.stuyscheduleapp.R
 
 object Route {
     const val HOME = "Home"

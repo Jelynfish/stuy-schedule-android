@@ -1,14 +1,21 @@
-package com.jelynfish.stuyscheduleapp.ui
+package com.jelynfish.stuyschedule.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.google.gson.Gson
-import com.jelynfish.stuyscheduleapp.api.Api
-import com.jelynfish.stuyscheduleapp.api.ApiData
+import com.jelynfish.stuyschedule.api.Api
+import com.jelynfish.stuyschedule.api.ApiData
+import com.jelynfish.stuyschedule.api.Day
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class ScheduleVM(app: Application) : AndroidViewModel(app) {
     companion object {
@@ -26,6 +33,7 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
 
     init {
         parseLocalSchedule("local.json")
+        getTodaysDate()
     }
     private fun parseLocalSchedule(file: String) {
         val jsonString = getApplication<Application>()
@@ -39,9 +47,18 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
             schedule = schedule
         )
     }
+
+    private fun getTodaysDate() {
+        val currTime = Calendar.getInstance()
+        val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.US)
+        _uiState.value = _uiState.value.copy(
+            currentDay = formatter.format(currTime.time)
+        )
+    }
 }
 
 data class UIState(
     val schedule: ApiData? = null,
+    val currentDay: String = "",
     val mode: Int = 0 //light mode = 0, dark mode = 1
 )

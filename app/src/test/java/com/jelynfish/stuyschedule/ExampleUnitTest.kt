@@ -1,4 +1,4 @@
-package com.jelynfish.stuyscheduleapp
+package com.jelynfish.stuyschedule
 
 import org.junit.Test
 
