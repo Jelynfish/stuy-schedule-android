@@ -5,7 +5,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.jelynfish.stuyscheduleapp.ui.UIState
 import kotlinx.coroutines.delay
@@ -15,15 +18,18 @@ import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun HomeScreen(uiState: UIState) {
-    val currentTime by rememberUpdatedState(newValue = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
+    var currentTime by remember { mutableStateOf(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())) }
 
-    LaunchedEffect(key1 = currentTime) {
-        val currentSecond = currentTime.second
-        delay((60 - currentSecond) * 1000L)  // Delay until the next minute
+    LaunchedEffect(key1 = Unit) {
+        while (true) {
+            delay(1000) // Wait for 1 second
+            currentTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) // Update the current time
+        }
     }
+
     Column {
         Text("This is the home screen")
-        Text("The time is: ${currentTime.hour}:${currentTime.minute}")
+        Text("The time is: ${currentTime.hour}:${currentTime.minute}:${currentTime.second}")
     }
 }
 
