@@ -9,16 +9,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
+import com.jelynfish.stuyschedule.api.Period
 import com.jelynfish.stuyschedule.ui.UIState
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import java.util.Calendar
 
 @Composable
-fun HomeScreen(uiState: UIState) {
+fun HomeScreen(
+    uiState: UIState,
+    getPeriod: (Calendar) -> Period
+) {
     var currentTime by remember { mutableStateOf(Calendar.getInstance()) }
+    var currentPeriod by remember { mutableStateOf(getPeriod(currentTime)) }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -36,5 +38,8 @@ fun HomeScreen(uiState: UIState) {
 @Preview(showBackground = true)
 @Composable
 fun HomePreview() {
-    HomeScreen(uiState = UIState())
+    HomeScreen(
+        uiState = UIState(),
+        getPeriod = { _ -> Period("No current period", "0:00", 1440) }
+    )
 }

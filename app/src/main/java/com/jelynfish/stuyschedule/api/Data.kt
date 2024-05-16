@@ -23,4 +23,5 @@ data class Period(
     val name: String,
     val startTime: String,
     val duration: Int,
+    var endTime: String = ""
 )

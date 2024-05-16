@@ -93,7 +93,8 @@ fun ScheduleApp(
             when (destination.value) {
                 Route.HOME -> {
                     HomeScreen(
-                        uiState = uiState
+                        uiState = uiState,
+                        getPeriod = {cal -> viewModel.whatPeriod(cal)}
                     )
                 }
 

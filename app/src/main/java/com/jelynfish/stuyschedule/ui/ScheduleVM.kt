@@ -1,5 +1,6 @@
 package com.jelynfish.stuyschedule.ui
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -7,11 +8,12 @@ import com.google.gson.Gson
 import com.jelynfish.stuyschedule.api.Api
 import com.jelynfish.stuyschedule.api.ApiData
 import com.jelynfish.stuyschedule.api.Day
+import com.jelynfish.stuyschedule.api.Period
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
@@ -33,9 +35,81 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
     val uiState: StateFlow<UIState> = _uiState
 
     init {
-        parseLocalSchedule("local.json")
-        getTodaysDate()
+        getWeeklyFromJSON()
     }
+
+    fun refreshSchedule() {
+        getWeeklySchedule()
+    }
+
+    fun whatPeriod(currTime: Calendar): Period {
+        _uiState.value.todaySchedule?.let { today ->
+            today.bell?.let { bell ->
+                @SuppressLint("SimpleDateFormat")
+                val sdf = SimpleDateFormat("HH:mm")
+                bell.schedule.forEach {
+                    val startTime = sdf.parse(it.startTime)
+                    val endTime = sdf.parse(it.endTime)
+                    if (startTime != null && endTime != null && currTime.after(startTime) && currTime.before(endTime)) {
+                        return it
+                    }
+                }
+            }
+        }
+        return Period(
+            name = "No matching period",
+            startTime = "0:00",
+            duration = 0
+        )
+    }
+    private fun getWeeklySchedule() {
+        _uiState.value = _uiState.value.copy(loading = true)
+        val call: Call<ApiData> = api.getData()
+        call.enqueue(object : Callback<ApiData> {
+            override fun onFailure(p0: Call<ApiData>, p1: Throwable) {
+                _uiState.value = _uiState.value.copy(loading = false)
+                Log.d("ScheduleVM", "Failed to fetch weekly schedule.")
+            }
+
+            override fun onResponse(p0: Call<ApiData>, p1: Response<ApiData>) {
+                val schedule = p1.body()
+
+                schedule?.let {s ->
+                    s.days.forEach {day ->
+                        day.bell?.let { bellSchedule ->
+                            bellSchedule.schedule.forEach {
+                                it.endTime = getEndTime(it.startTime, it.duration)
+                            }
+                        }
+                    }
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    schedule = schedule,
+                    loading = false,
+                )
+                getTodaySchedule()
+            }
+        })
+    }
+
+    private fun getWeeklyFromJSON() {
+        parseLocalSchedule("local.json")
+        getTodaySchedule()
+    }
+
+    private fun getTodaySchedule() {
+        val schedule = _uiState.value.schedule
+        schedule?.let {
+            val todaySchedule = it.days.firstOrNull {
+                day -> day.day == getTodayDate()
+            }
+            _uiState.value = _uiState.value.copy(
+                todaySchedule = todaySchedule
+            )
+        }
+    }
+
     private fun parseLocalSchedule(file: String) {
         val jsonString = getApplication<Application>()
             .assets.open(file)
@@ -49,18 +123,34 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
         )
     }
 
-    private fun getTodaysDate() {
+    private fun getTodayDate(): String {
         val currTime = Calendar.getInstance()
         val today = SimpleDateFormat("MMMM dd, yyyy", Locale.US).format(currTime.time)
-        _uiState.value = _uiState.value.copy(
-            currentDay = today
-        )
         Log.d("ScheduleVM", today)
+        return today
     }
+
+    private fun getEndTime(startTime: String, duration: Int): String {
+        val parts = startTime.split(":")
+        val hours = parts[0].toInt()
+        val minutes = parts[1].toInt()
+
+        var newHours = hours
+        var newMinutes = minutes + duration
+
+        if (newMinutes >= 60) {
+            newHours += newMinutes / 60
+            newMinutes %= 60
+        }
+
+        return String.format("%02d:%02d", newHours, newMinutes)
+    }
+
 }
 
 data class UIState(
     val schedule: ApiData? = null,
-    val currentDay: String = "",
-    val mode: Int = 0 //light mode = 0, dark mode = 1
+    val todaySchedule: Day? = null,
+    val mode: Int = 0, //light mode = 0, dark mode = 1
+    val loading: Boolean = false,
 )
