@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.jelynfish.stuyscheduleapp"
+    namespace = "com.jelynfish.stuyschedule"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.jelynfish.stuyscheduleapp"
+        applicationId = "com.jelynfish.stuyschedule"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

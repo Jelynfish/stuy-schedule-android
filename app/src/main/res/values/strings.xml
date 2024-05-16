@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Stuy Schedule App</string>
+    <string name="app_name">Stuy Schedule</string>
     
     <string name="home">Home</string>
     <string name="detail">Detail</string>

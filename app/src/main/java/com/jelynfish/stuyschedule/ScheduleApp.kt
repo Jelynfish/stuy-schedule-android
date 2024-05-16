@@ -22,7 +22,6 @@ import com.jelynfish.stuyschedule.ui.ScheduleVM
 import com.jelynfish.stuyschedule.ui.screens.DetailScreen
 import com.jelynfish.stuyschedule.ui.screens.HomeScreen
 import com.jelynfish.stuyschedule.ui.screens.SettingsScreen
-import com.jelynfish.stuyscheduleapp.R
 
 object Route {
     const val HOME = "Home"

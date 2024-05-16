@@ -49,7 +49,7 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
                 val sdf = SimpleDateFormat("HH:mm")
                 bell.schedule.forEach {
                     val startTime = sdf.parse(it.startTime)
-                    val endTime = sdf.parse(it.endTime)
+                     val endTime = sdf.parse(it.endTime)
                     if (startTime != null && endTime != null && currTime.after(startTime) && currTime.before(endTime)) {
                         return it
                     }
@@ -118,6 +118,13 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
                 it.readText()
             }
         val schedule = Gson().fromJson(jsonString, ApiData::class.java)
+        schedule.days.forEach {day ->
+            day.bell?.let { bellSchedule ->
+                bellSchedule.schedule.forEach {
+                    it.endTime = getEndTime(it.startTime, it.duration)
+                }
+            }
+        }
         _uiState.value = _uiState.value.copy(
             schedule = schedule
         )
