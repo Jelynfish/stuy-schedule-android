@@ -1,6 +1,7 @@
 package com.jelynfish.stuyschedule.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.google.gson.Gson
 import com.jelynfish.stuyschedule.api.Api
@@ -50,10 +51,11 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
 
     private fun getTodaysDate() {
         val currTime = Calendar.getInstance()
-        val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.US)
+        val today = SimpleDateFormat("MMMM dd, yyyy", Locale.US).format(currTime.time)
         _uiState.value = _uiState.value.copy(
-            currentDay = formatter.format(currTime.time)
+            currentDay = today
         )
+        Log.d("ScheduleVM", today)
     }
 }
 
