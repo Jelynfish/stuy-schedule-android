@@ -18,6 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class ScheduleVM(app: Application) : AndroidViewModel(app) {
@@ -45,12 +46,31 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
     fun whatPeriod(currTime: Calendar): Period {
         _uiState.value.todaySchedule?.let { today ->
             today.bell?.let { bell ->
-                @SuppressLint("SimpleDateFormat")
-                val sdf = SimpleDateFormat("HH:mm")
                 bell.schedule.forEach {
-                    val startTime = sdf.parse(it.startTime)
-                     val endTime = sdf.parse(it.endTime)
-                    if (startTime != null && endTime != null && currTime.after(startTime) && currTime.before(endTime)) {
+                    val startTimeComponents = it.startTime.split(":")
+                    val endTimeComponents = it.endTime.split(":")
+
+                    val startHour = startTimeComponents[0].toInt()
+                    val startMinute = startTimeComponents[1].toInt()
+
+                    val endHour = endTimeComponents[0].toInt()
+                    val endMinute = endTimeComponents[1].toInt()
+
+                    val tempStart = Calendar.getInstance().apply {
+                        timeInMillis = currTime.timeInMillis
+                        set(Calendar.HOUR_OF_DAY, startHour)
+                        set(Calendar.MINUTE, startMinute)
+                        set(Calendar.SECOND, 0)
+                    }
+
+                    val tempEnd = Calendar.getInstance().apply {
+                        timeInMillis = currTime.timeInMillis
+                        set(Calendar.HOUR_OF_DAY, endHour)
+                        set(Calendar.MINUTE, endMinute)
+                        set(Calendar.SECOND, 0)
+                    }
+
+                    if (currTime.after(tempStart) && currTime.before(tempEnd)) {
                         return it
                     }
                 }
@@ -62,6 +82,13 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
             duration = 0
         )
     }
+
+    fun whatEndTime(period: Period): Date {
+        @SuppressLint("SimpleDateFormat")
+        val sdf = SimpleDateFormat("HH:mm")
+        return sdf.parse(period.endTime)!!
+    }
+
     private fun getWeeklySchedule() {
         _uiState.value = _uiState.value.copy(loading = true)
         val call: Call<ApiData> = api.getData()

@@ -93,13 +93,16 @@ fun ScheduleApp(
                 Route.HOME -> {
                     HomeScreen(
                         uiState = uiState,
-                        getPeriod = {cal -> viewModel.whatPeriod(cal)}
+                        getPeriod = {cal -> viewModel.whatPeriod(cal)},
+                        refreshSchedule = {viewModel.refreshSchedule()},
                     )
                 }
 
                 Route.DETAIL -> {
                     DetailScreen(
-                        uiState = uiState
+                        uiState = uiState,
+                        getPeriod = {cal -> viewModel.whatPeriod(cal)},
+                        refreshSchedule = {viewModel.refreshSchedule()},
                     )
                 }
 
