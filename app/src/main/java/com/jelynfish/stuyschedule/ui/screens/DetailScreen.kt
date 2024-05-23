@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jelynfish.stuyschedule.R
@@ -54,8 +55,11 @@ fun DetailScreen(
                         ) {
                             Text(
                                 text = it.name,
+                                color = if (it.name == currentPeriod.name) Color.Red else Color.Black
                             )
-                            Text(text = "${it.startTime} - ${it.endTime}")
+                            Text(text = "${it.startTime} - ${it.endTime}",
+                                color = if (it.name == currentPeriod.name) Color.Red else Color.Black
+                            )
                         }
                     }
                 }
