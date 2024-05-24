@@ -3,17 +3,13 @@ package com.jelynfish.stuyschedule.ui
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import com.google.gson.Gson
 import com.jelynfish.stuyschedule.api.ApiClient
-import com.jelynfish.stuyschedule.api.ApiService
 import com.jelynfish.stuyschedule.api.ApiData
 import com.jelynfish.stuyschedule.api.Day
 import com.jelynfish.stuyschedule.api.Period
 import com.jelynfish.stuyschedule.api.ScheduleRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -29,7 +25,7 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
         getWeekly()
     }
 
-    fun getWeekly() {
+    private fun getWeekly() {
         if (scheduleRepo.doesLocalExist()) {
             getWeeklyFromJSON()
         } else {
@@ -41,11 +37,13 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
     fun refreshSchedule() {
         getWeeklyFromAPI()
     }
+
     private fun getWeeklyFromAPI() {
         val schedule = scheduleRepo.getWeeklySchedule()
         _uiState.value = _uiState.value.copy(schedule = schedule)
 
     }
+
     private fun getWeeklyFromJSON() {
         val schedule = scheduleRepo.parseLocalSchedule()
         _uiState.value = _uiState.value.copy(schedule = schedule)
@@ -53,67 +51,19 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
 
     private fun getTodaySchedule() {
         val schedule = _uiState.value.schedule
-        schedule?.let {
-            val todaySchedule = it.days.firstOrNull { day ->
-                day.day == getTodayDate()
-            }
-            _uiState.value = _uiState.value.copy(
-                todaySchedule = todaySchedule
-            )
-        }
-    }
-
-    private fun getTodayDate(): String {
-        val currTime = Calendar.getInstance()
-        val today = SimpleDateFormat("MMMM dd, yyyy", Locale.US).format(currTime.time)
-        Log.d("ScheduleVM", today)
-        return today
+        val todaySchedule = scheduleRepo.getTodaySchedule(schedule)
+        _uiState.value = _uiState.value.copy(
+            todaySchedule = todaySchedule
+        )
     }
 
     fun whatPeriod(currTime: Calendar): Period {
-        _uiState.value.todaySchedule?.let { today ->
-            today.bell?.let { bell ->
-                bell.schedule.forEach {
-                    val startTimeComponents = it.startTime.split(":")
-                    val endTimeComponents = it.endTime.split(":")
-
-                    val startHour = startTimeComponents[0].toInt()
-                    val startMinute = startTimeComponents[1].toInt()
-
-                    val endHour = endTimeComponents[0].toInt()
-                    val endMinute = endTimeComponents[1].toInt()
-
-                    val tempStart = Calendar.getInstance().apply {
-                        timeInMillis = currTime.timeInMillis
-                        set(Calendar.HOUR_OF_DAY, startHour)
-                        set(Calendar.MINUTE, startMinute)
-                        set(Calendar.SECOND, 0)
-                    }
-
-                    val tempEnd = Calendar.getInstance().apply {
-                        timeInMillis = currTime.timeInMillis
-                        set(Calendar.HOUR_OF_DAY, endHour)
-                        set(Calendar.MINUTE, endMinute)
-                        set(Calendar.SECOND, 0)
-                    }
-
-                    if (currTime.after(tempStart) && currTime.before(tempEnd)) {
-                        return it
-                    }
-                }
-            }
-        }
-        return Period(
-            name = "No matching period",
-            startTime = "0:00",
-            duration = 0
-        )
+        val todaySchedule = _uiState.value.todaySchedule
+        return scheduleRepo.getPeriod(todaySchedule, currTime)
     }
 }
 
 data class UIState(
-    val schedule: ApiData? = null,
-    val todaySchedule: Day? = null,
-    val mode: Int = 0, //light mode = 0, dark mode = 1
-    val loading: Boolean = false,
+    val schedule: ApiData = ApiData("", emptyList()),
+    val todaySchedule: Day = Day("", null, null, null, null),
 )
