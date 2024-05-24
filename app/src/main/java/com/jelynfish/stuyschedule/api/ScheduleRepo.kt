@@ -1,7 +1,6 @@
 package com.jelynfish.stuyschedule.api
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import java.io.File
 import java.io.FileOutputStream
@@ -56,7 +55,7 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
         val todaySchedule = schedule.days.firstOrNull {
             day -> day.day == todayDate
         } ?: Day(getTodayDate(), null, null, null, null)
-        return todaySchedule;
+        return todaySchedule
     }
 
     private fun getTodayDate(): String {

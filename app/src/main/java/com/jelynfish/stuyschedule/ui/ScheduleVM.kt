@@ -1,7 +1,6 @@
 package com.jelynfish.stuyschedule.ui
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.jelynfish.stuyschedule.api.ApiClient
 import com.jelynfish.stuyschedule.api.ApiData
@@ -10,9 +9,7 @@ import com.jelynfish.stuyschedule.api.Period
 import com.jelynfish.stuyschedule.api.ScheduleRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 class ScheduleVM(app: Application) : AndroidViewModel(app) {
 
