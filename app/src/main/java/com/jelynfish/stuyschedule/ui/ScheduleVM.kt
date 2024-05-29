@@ -23,27 +23,16 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
     }
 
     private fun getWeekly() {
-        if (scheduleRepo.doesLocalExist()) {
-            getWeeklyFromJSON()
-        } else {
-            getWeeklyFromAPI()
-        }
+        _uiState.value = _uiState.value.copy(
+            schedule = scheduleRepo.getWeeklySchedule()
+        )
         getTodaySchedule()
     }
 
     fun refreshSchedule() {
-        getWeeklyFromAPI()
-    }
-
-    private fun getWeeklyFromAPI() {
-        val schedule = scheduleRepo.getWeeklySchedule()
-        _uiState.value = _uiState.value.copy(schedule = schedule)
-
-    }
-
-    private fun getWeeklyFromJSON() {
-        val schedule = scheduleRepo.parseLocalSchedule()
-        _uiState.value = _uiState.value.copy(schedule = schedule)
+        _uiState.value = _uiState.value.copy(
+            schedule = scheduleRepo.refreshWeeklySchedule()
+        )
     }
 
     private fun getTodaySchedule() {

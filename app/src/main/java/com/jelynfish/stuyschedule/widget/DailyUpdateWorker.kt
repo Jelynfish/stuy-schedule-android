@@ -14,7 +14,7 @@ import com.jelynfish.stuyschedule.api.ApiClient
 import com.jelynfish.stuyschedule.api.ScheduleRepo
 import java.util.concurrent.TimeUnit
 
-class DailyUpdater(context: Context, params: WorkerParameters) : Worker(context, params) {
+class DailyUpdateWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
     override fun doWork(): Result {
         updateTodaySchedule(applicationContext)
 
@@ -27,21 +27,18 @@ class DailyUpdater(context: Context, params: WorkerParameters) : Worker(context,
 
     private fun updateTodaySchedule(context: Context) {
         val repo = ScheduleRepo(context, ApiClient.api)
-
-        val schedule = if (repo.doesLocalExist()) {
-            repo.parseLocalSchedule()
-        } else {
-            repo.getWeeklySchedule()
-        }
+        val schedule = repo.getWeeklySchedule()
 
         val todaySchedule = repo.getTodaySchedule(schedule)
+
         todaySchedule.let {
             Log.d("DailyUpdateWorker", "Today's schedule updated: $it")
         }
     }
+
     companion object {
         fun scheduleDailyWork(context: Context) {
-            val dailyWorkRequest = PeriodicWorkRequestBuilder<DailyUpdater>(1, TimeUnit.DAYS)
+            val dailyWorkRequest = PeriodicWorkRequestBuilder<DailyUpdateWorker>(1, TimeUnit.DAYS)
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 "dailyUpdate",

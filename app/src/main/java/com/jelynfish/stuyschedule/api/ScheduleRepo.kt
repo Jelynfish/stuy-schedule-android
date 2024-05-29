@@ -9,7 +9,12 @@ import java.util.Calendar
 import java.util.Locale
 
 class ScheduleRepo(private val context: Context, private val api: ApiService) {
+
     fun getWeeklySchedule(): ApiData {
+        return if (doesLocalExist()) parseLocalSchedule() else refreshWeeklySchedule()
+    }
+
+    fun refreshWeeklySchedule(): ApiData {
         try {
             val response = api.getData().execute()
             if (response.isSuccessful) {
@@ -39,13 +44,13 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
         }
     }
 
-    fun parseLocalSchedule(): ApiData {
+    private fun parseLocalSchedule(): ApiData {
         val file = File(context.filesDir, "schedule_data.json")
         val jsonString = file.readText()
         return Gson().fromJson(jsonString, ApiData::class.java)
     }
 
-    fun doesLocalExist(): Boolean {
+    private fun doesLocalExist(): Boolean {
         val file = File(context.filesDir, "schedule_data.json")
         return file.exists()
     }
