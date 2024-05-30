@@ -50,7 +50,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Text("This is the home screen")
-        Text("Today is ${uiState.todaySchedule?.day}")
+        Text("Today is ${uiState.todaySchedule.day}")
         Text("The time is: ${currentTime.get(Calendar.HOUR_OF_DAY)}:${currentTime.get(Calendar.MINUTE)}:${currentTime.get(Calendar.SECOND)}")
         Text(currentPeriod.name)
         Text("${timeElapsed}", color = Color.Green)
