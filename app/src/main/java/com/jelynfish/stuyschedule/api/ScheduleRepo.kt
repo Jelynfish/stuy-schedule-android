@@ -2,6 +2,8 @@ package com.jelynfish.stuyschedule.api
 
 import android.content.Context
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -10,31 +12,38 @@ import java.util.Locale
 
 class ScheduleRepo(private val context: Context, private val api: ApiService) {
 
-    fun getWeeklySchedule(): ApiData {
-        return if (doesLocalExist()) parseLocalSchedule() else refreshWeeklySchedule()
+    suspend fun getWeeklySchedule(): ApiData {
+        return withContext(Dispatchers.IO) {
+            if (doesLocalExist()) parseLocalSchedule() else refreshWeeklySchedule()
+        }
     }
 
-    fun refreshWeeklySchedule(): ApiData {
-        try {
-            val response = api.getData().execute()
-            if (response.isSuccessful) {
-                val schedule = response.body()
-                schedule?.let {
-                    it.days.forEach { day ->
-                        day.bell?.let { bellSchedule ->
-                            bellSchedule.schedule.forEach {
-                                it.endTime = getEndTime(it.startTime, it.duration)
+    suspend fun refreshWeeklySchedule(): ApiData {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = api.getData().execute()
+                if (response.isSuccessful) {
+                    val schedule = response.body()
+                    if (schedule != null) {
+                        schedule.days.forEach { day ->
+                            day.bell?.let { bellSchedule ->
+                                bellSchedule.schedule.forEach {
+                                    it.endTime = getEndTime(it.startTime, it.duration)
+                                }
                             }
                         }
+                        saveScheduleToJson(schedule)
+                        return@withContext schedule
+                    } else {
+                        throw Exception("Failed to fetch weekly schedule")
                     }
-                    saveScheduleToJson(schedule)
-                    return schedule
-                } ?: throw Exception("Failed to fetch weekly schedule")
+                } else {
+                    throw Exception("Unsuccessful response: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                throw e
             }
-        } catch (e: Exception) {
-            throw e
         }
-        throw Exception("Empty response body")
     }
     private fun saveScheduleToJson(schedule: ApiData) {
         val jsonString = Gson().toJson(schedule)

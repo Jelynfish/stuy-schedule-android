@@ -12,6 +12,9 @@ import androidx.work.WorkerParameters
 import com.jelynfish.stuyschedule.ScheduleWidget
 import com.jelynfish.stuyschedule.api.ApiClient
 import com.jelynfish.stuyschedule.api.ScheduleRepo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class DailyUpdateWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
@@ -25,13 +28,15 @@ class DailyUpdateWorker(context: Context, params: WorkerParameters) : Worker(con
         return Result.success()
     }
     private fun updateTodaySchedule(context: Context) {
-        val repo = ScheduleRepo(context, ApiClient.api)
-        val schedule = repo.getWeeklySchedule()
+        CoroutineScope(Dispatchers.Main).launch {
+            val repo = ScheduleRepo(context, ApiClient.api)
+            val schedule = repo.getWeeklySchedule()
 
-        val todaySchedule = repo.getTodaySchedule(schedule)
+            val todaySchedule = repo.getTodaySchedule(schedule)
 
-        todaySchedule.let {
-            Log.d("DailyUpdateWorker", "Today's schedule updated: $it")
+            todaySchedule.let {
+                Log.d("DailyUpdateWorker", "Today's schedule updated: $it")
+            }
         }
     }
 
