@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.jelynfish.stuyschedule.R
 import com.jelynfish.stuyschedule.api.Period
 import com.jelynfish.stuyschedule.ui.UIState
+import com.jelynfish.stuyschedule.utils.getTimeElapsed
 import kotlinx.coroutines.delay
 import java.util.Calendar
 
@@ -68,19 +69,4 @@ fun HomePreview() {
         getPeriod = { _ -> Period("No current period", "0:00", 1440)},
         refreshSchedule = {}
     )
-}
-
-fun getTimeElapsed(currentTime: Calendar, startTime: String): Long {
-    val currentTimeMillis = currentTime.timeInMillis
-    val startTimeMillis = parseStartTimeToMillis(startTime)
-    val diffMillis = currentTimeMillis - startTimeMillis
-    return (diffMillis / (1000 * 60))
-}
-fun parseStartTimeToMillis(startTime: String): Long {
-    val (hours, minutes) = startTime.split(":")
-    val calendar = Calendar.getInstance()
-    calendar.set(Calendar.HOUR_OF_DAY, hours.toInt())
-    calendar.set(Calendar.MINUTE, minutes.toInt())
-    calendar.set(Calendar.SECOND, 0)
-    return calendar.timeInMillis
 }

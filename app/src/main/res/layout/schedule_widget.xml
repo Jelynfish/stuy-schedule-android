@@ -5,33 +5,52 @@
     android:theme="@style/Theme.StuySchedule.AppWidgetContainer">
 
     <TextView
-        android:id="@+id/appwidget_text"
+        android:id="@+id/what_period"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:contentDescription="@string/current_period"
-        android:text="@string/current_period"
+        android:text="@string/default_period"
         android:textSize="24sp"
         android:textStyle="bold" />
 
-    <LinearLayout
-        android:id="@+id/text_and_progress_layout"
+    <TextView
+        android:id="@+id/curr_day"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/appwidget_text"
+        android:layout_below="@id/what_period"
+        android:layout_centerInParent="true"
+        android:text="@string/default_day"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/curr_period"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/what_period"
         android:layout_centerHorizontal="true"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        android:text="@string/current_period"
+        />
+
+    <RelativeLayout
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/curr_day"
+        android:layout_marginTop="8dp"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
 
         <LinearLayout
+            android:layout_alignParentStart="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginEnd="16dp">
+            android:layout_marginEnd="16dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/minutes_into"
@@ -39,28 +58,51 @@
                 android:layout_height="wrap_content"
                 android:text="@string/minutes_into" />
 
+            <TextView
+                android:id="@+id/time_into"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/default_time_elapsed"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:textColor="@color/green"
+                />
+
             <ProgressBar
                 android:id="@+id/into_progress"
                 style="@android:style/Widget.ProgressBar.Horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:progress="25"
-                android:progressTint="@color/green"
-                android:progressBackgroundTint="@android:color/darker_gray"/>
+                android:progress="33"
+                android:progressBackgroundTint="@android:color/darker_gray"
+                android:progressTint="@color/green" />
         </LinearLayout>
 
         <LinearLayout
+            android:layout_alignParentEnd="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/minutes_until"
+                android:id="@+id/minutes_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/minutes_until" />
+                android:text="@string/minutes_left" />
+
+            <TextView
+                android:id="@+id/time_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/default_time_left"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:textColor="@color/red"
+                />
 
             <ProgressBar
                 android:id="@+id/until_progress"
@@ -68,11 +110,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:progress="25"
-                android:progressTint="@android:color/darker_gray"
-                android:progressBackgroundTint="@color/red"/>
+                android:progress="33"
+                android:progressBackgroundTint="@color/red"
+                android:progressTint="@android:color/darker_gray" />
         </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>
