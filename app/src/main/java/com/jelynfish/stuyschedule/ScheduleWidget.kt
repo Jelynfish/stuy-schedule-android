@@ -11,6 +11,9 @@ import android.widget.RemoteViews
 import com.jelynfish.stuyschedule.api.ApiClient
 import com.jelynfish.stuyschedule.api.ScheduleRepo
 import com.jelynfish.stuyschedule.widget.DailyUpdateWorker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class ScheduleWidget : AppWidgetProvider() {
@@ -22,8 +25,8 @@ class ScheduleWidget : AppWidgetProvider() {
         // There may be multiple widgets active, so update all of them
         updateWidgets(context, appWidgetManager, appWidgetIds)
 
-        DailyUpdateWorker.scheduleDailyWork(context)
-        schedulePerMinuteUpdates(context)
+        //DailyUpdateWorker.scheduleDailyWork(context)
+        //schedulePerMinuteUpdates(context)
     }
 
     override fun onEnabled(context: Context) {
@@ -50,29 +53,32 @@ class ScheduleWidget : AppWidgetProvider() {
             appWidgetManager: AppWidgetManager,
             appWidgetIds: IntArray
         ) {
-            val repo = ScheduleRepo(context, ApiClient.api)
-            val schedule = repo.getWeeklySchedule()
-            val todaySchedule = repo.getTodaySchedule(schedule)
+            CoroutineScope(Dispatchers.Main).launch {
+                val repo = ScheduleRepo(context, ApiClient.api)
+                val schedule = repo.getWeeklySchedule()
+                val todaySchedule = repo.getTodaySchedule(schedule)
 
-            // Determine the current period
-            val currTime = Calendar.getInstance()
-            val currentPeriod = todaySchedule.let {  repo.getPeriod(it, currTime) }
+                // Determine the current period
+                val currTime = Calendar.getInstance()
+                val currentPeriod = todaySchedule.let {  repo.getPeriod(it, currTime) }
+
+                // Update the widget with the current period
+                appWidgetIds.forEach { appWidgetId ->
+                    val views = RemoteViews(context.packageName, R.layout.schedule_widget)
+                    views.setTextViewText(
+                        R.id.curr_period,
+                        currentPeriod.name
+                    )
+
+                    appWidgetManager.updateAppWidget(appWidgetId, views)
+                }
+            }
+
 //            Text("Today is ${uiState.todaySchedule?.day}")
 //            Text("The time is: ${currentTime.get(Calendar.HOUR_OF_DAY)}:${currentTime.get(Calendar.MINUTE)}:${currentTime.get(Calendar.SECOND)}")
 //            Text(currentPeriod.name)
 //            Text("${timeElapsed}", color = Color.Green)
 //            Text("${currentPeriod.duration - timeElapsed}", color = Color.Red)
-
-            // Update the widget with the current period
-            appWidgetIds.forEach { appWidgetId ->
-                val views = RemoteViews(context.packageName, R.layout.schedule_widget)
-                views.setTextViewText(
-                    R.id.appwidget_text,
-                    currentPeriod.name
-                )
-
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-            }
         }
 
         fun schedulePerMinuteUpdates(context: Context) {

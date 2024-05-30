@@ -2,6 +2,7 @@ package com.jelynfish.stuyschedule.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.jelynfish.stuyschedule.api.ApiClient
 import com.jelynfish.stuyschedule.api.ApiData
 import com.jelynfish.stuyschedule.api.Day
@@ -9,6 +10,7 @@ import com.jelynfish.stuyschedule.api.Period
 import com.jelynfish.stuyschedule.api.ScheduleRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class ScheduleVM(app: Application) : AndroidViewModel(app) {
@@ -23,16 +25,22 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
     }
 
     private fun getWeekly() {
-        _uiState.value = _uiState.value.copy(
-            schedule = scheduleRepo.getWeeklySchedule()
-        )
-        getTodaySchedule()
+        viewModelScope.launch {
+            val schedule = scheduleRepo.getWeeklySchedule()
+            _uiState.value = _uiState.value.copy(
+                schedule = schedule
+            )
+            getTodaySchedule()
+        }
     }
 
     fun refreshSchedule() {
-        _uiState.value = _uiState.value.copy(
-            schedule = scheduleRepo.refreshWeeklySchedule()
-        )
+        viewModelScope.launch {
+            val schedule = scheduleRepo.refreshWeeklySchedule()
+            _uiState.value = _uiState.value.copy(
+                schedule = schedule
+            )
+        }
     }
 
     private fun getTodaySchedule() {
