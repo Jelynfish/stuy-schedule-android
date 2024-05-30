@@ -24,7 +24,6 @@ class DailyUpdateWorker(context: Context, params: WorkerParameters) : Worker(con
 
         return Result.success()
     }
-
     private fun updateTodaySchedule(context: Context) {
         val repo = ScheduleRepo(context, ApiClient.api)
         val schedule = repo.getWeeklySchedule()
