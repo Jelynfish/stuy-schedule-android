@@ -27,6 +27,8 @@
                 android:resource="@xml/schedule_widget_info" />
         </receiver>
 
+        <service android:name=".widget.TimeTickService" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
