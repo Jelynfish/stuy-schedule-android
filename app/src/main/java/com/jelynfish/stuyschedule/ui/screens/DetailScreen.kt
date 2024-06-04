@@ -46,7 +46,7 @@ fun DetailScreen(
         Text("This is the detail screen.")
         Text("The time is: ${currentTime.get(Calendar.HOUR_OF_DAY)}:${currentTime.get(Calendar.MINUTE)}:${currentTime.get(Calendar.SECOND)}")
 
-        uiState.todaySchedule?.let {today ->
+        uiState.todaySchedule.let {today ->
             today.bell?.let {bell ->
                 bell.schedule.forEach {
                     if (!it.name.contains("Before") && !it.name.contains("After")) {

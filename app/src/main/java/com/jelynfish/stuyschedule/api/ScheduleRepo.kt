@@ -1,6 +1,7 @@
 package com.jelynfish.stuyschedule.api
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -74,7 +75,7 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
 
     private fun getTodayDate(): String {
         val currTime = Calendar.getInstance()
-        return SimpleDateFormat("MMMM dd, yyyy", Locale.US).format(currTime.time)
+        return SimpleDateFormat("MMMM d, yyyy", Locale.US).format(currTime.time)
     }
 
     private fun getEndTime(startTime: String, duration: Int): String {
@@ -119,7 +120,7 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
                     set(Calendar.SECOND, 0)
                 }
 
-                if (currTime.after(tempStart) && currTime.before(tempEnd)) {
+                if (currTime >= tempStart && currTime < tempEnd) {
                     return it
                 }
             }
@@ -128,7 +129,7 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
         return Period(
             name = "No matching period",
             startTime = "0:00",
-            duration = 0
+            duration = 1440
         )
     }
 }
