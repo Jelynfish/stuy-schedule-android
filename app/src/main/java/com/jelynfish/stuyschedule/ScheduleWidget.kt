@@ -1,18 +1,18 @@
 package com.jelynfish.stuyschedule
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
+import android.os.SystemClock
 import android.util.Log
 import android.widget.RemoteViews
 import com.jelynfish.stuyschedule.api.ApiClient
 import com.jelynfish.stuyschedule.api.ScheduleRepo
 import com.jelynfish.stuyschedule.utils.getTimeElapsed
-import com.jelynfish.stuyschedule.widget.TimeTickService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,12 +27,12 @@ class ScheduleWidget : AppWidgetProvider() {
         // There may be multiple widgets active, so update all of them
         updateWidgets(context, appWidgetManager, appWidgetIds)
 //        DailyUpdateWorker.scheduleDailyWork(context)
-//        schedulePerMinuteUpdates(context)
+        scheduleNextUpdate(context)
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-
+        scheduleNextUpdate(context)
         // Register service
 //        val serviceIntent = Intent(context, TimeTickService::class.java)
 //        context.startService(serviceIntent)
@@ -41,12 +41,23 @@ class ScheduleWidget : AppWidgetProvider() {
     override fun onDisabled(context: Context) {
         // Enter relevant functionality for when the last widget is disabled
         super.onDisabled(context)
-
-        // Unregister service
-//        val serviceIntent = Intent(context, TimeTickService::class.java)
-//        context.stopService(serviceIntent)
+        cancelUpdates(context)
     }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        intent.action?.let { Log.d("ScheduleWidget", "Received intent action: $it") }
+        if (intent.action == UPDATE_WIDGET_ACTION) {
+            Log.d("ScheduleWidget", "I received a scheduled update.")
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val thisAppWidget = ComponentName(context.packageName, javaClass.name)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget)
+            onUpdate(context, appWidgetManager, appWidgetIds)
+        }
+    }
+
     companion object {
+        const val UPDATE_WIDGET_ACTION = "com.jelynfish.stuyschedule.UPDATE_WIDGET"
         fun updateWidgets(
             context: Context,
             appWidgetManager: AppWidgetManager,
@@ -82,7 +93,43 @@ class ScheduleWidget : AppWidgetProvider() {
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             }
-            Log.d("ScheduleWidget", "Hello. I just updated the widget.")
+            Log.d("ScheduleWidget", "Updated the widget.")
+        }
+
+        fun scheduleNextUpdate(context: Context) {
+            Log.d("ScheduleWidget", "Scheduling next update")
+            val intent = Intent(context, ScheduleWidget::class.java).apply {
+                action = UPDATE_WIDGET_ACTION
+            }
+            Log.d("ScheduleWidget", "Creating PendingIntent")
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val triggerAtMillis = SystemClock.elapsedRealtime() + 60000
+            Log.d("ScheduleWidget", "Scheduling alarm at $triggerAtMillis")
+            alarmManager.set(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                triggerAtMillis,
+                pendingIntent
+            )
+            Log.d("ScheduleWidget", "Next update scheduled.")
+        }
+
+        fun cancelUpdates(context: Context) {
+            val intent = Intent(context, ScheduleWidget::class.java)
+            intent.action = UPDATE_WIDGET_ACTION
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(pendingIntent)
         }
     }
 }
