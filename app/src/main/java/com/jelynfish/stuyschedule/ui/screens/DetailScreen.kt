@@ -29,7 +29,7 @@ fun DetailScreen(
     refreshSchedule: () -> Unit
 ) {
     var currentTime by remember { mutableStateOf(Calendar.getInstance()) }
-    var currentPeriod by remember { mutableStateOf(getPeriod(currentTime)) }
+    val currentPeriod = getPeriod(currentTime)
 
     LaunchedEffect(Unit) {
         while (true) {

@@ -97,6 +97,20 @@ class ScheduleWidget : AppWidgetProvider() {
         }
 
         fun scheduleNextUpdate(context: Context) {
+            val currTime = Calendar.getInstance()
+            val beforeSchool = Calendar.getInstance().apply {
+                timeInMillis = currTime.timeInMillis
+                set(Calendar.HOUR_OF_DAY, 7)
+                set(Calendar.MINUTE, 30)
+                set(Calendar.SECOND, 0)
+            }
+            val afterSchool = Calendar.getInstance().apply {
+                timeInMillis = currTime.timeInMillis
+                set(Calendar.HOUR_OF_DAY, 15)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+            }
+
             Log.d("ScheduleWidget", "Scheduling next update")
             val intent = Intent(context, ScheduleWidget::class.java).apply {
                 action = UPDATE_WIDGET_ACTION
@@ -109,14 +123,19 @@ class ScheduleWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val triggerAtMillis = SystemClock.elapsedRealtime() + 60000
-            Log.d("ScheduleWidget", "Scheduling alarm at $triggerAtMillis")
-            alarmManager.set(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                triggerAtMillis,
-                pendingIntent
-            )
-            Log.d("ScheduleWidget", "Next update scheduled.")
+
+            if (currTime < beforeSchool) Log.d("ScheduleWidget", "Time is before school. Stopping per minute update..")
+            else if (currTime > afterSchool) Log.d("ScheduleWidget", "It is after school hours. Stopping per minute update.")
+            else {
+                val triggerAtMillis = SystemClock.elapsedRealtime() + 60000
+                Log.d("ScheduleWidget", "Scheduling alarm at $triggerAtMillis")
+                alarmManager.set(
+                    AlarmManager.ELAPSED_REALTIME,
+                    triggerAtMillis,
+                    pendingIntent
+                )
+                Log.d("ScheduleWidget", "Next update scheduled.")
+            }
         }
 
         fun cancelUpdates(context: Context) {
