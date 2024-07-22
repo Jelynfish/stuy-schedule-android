@@ -1,24 +1,29 @@
 package com.jelynfish.stuyschedule.api
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
+import com.jelynfish.stuyschedule.utils.getEndTime
+import com.jelynfish.stuyschedule.utils.getTodayDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 class ScheduleRepo(private val context: Context, private val api: ApiService) {
 
+//    Gets weekly schedule from the local schedule if the schedule is already fetched,
+//    Otherwise, refreshes from the API.
     suspend fun getWeeklySchedule(): ApiData {
         return withContext(Dispatchers.IO) {
-            if (doesLocalExist()) parseLocalSchedule() else refreshWeeklySchedule()
+            if (doesLocalExist())
+                parseLocalSchedule()
+            else refreshWeeklySchedule()
         }
     }
 
+//    Gets weekly schedule from the API
+//    Saves the schedule to a local JSON file
     suspend fun refreshWeeklySchedule(): ApiData {
         return withContext(Dispatchers.IO) {
             try {
@@ -46,6 +51,8 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
             }
         }
     }
+
+//    Saves fetched schedule to JSON file
     private fun saveScheduleToJson(schedule: ApiData) {
         val jsonString = Gson().toJson(schedule)
         val file = File(context.filesDir, "schedule_data.json")
@@ -54,47 +61,30 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
         }
     }
 
+//    Parses the local JSON schedule data
     private fun parseLocalSchedule(): ApiData {
         val file = File(context.filesDir, "schedule_data.json")
         val jsonString = file.readText()
         return Gson().fromJson(jsonString, ApiData::class.java)
     }
 
+//    Checks if the local JSON schedule data exists
     private fun doesLocalExist(): Boolean {
         val file = File(context.filesDir, "schedule_data.json")
         return file.exists()
     }
 
+//    From the schedule data, returns today's schedule data
     fun getTodaySchedule(schedule: ApiData): Day {
         val todayDate = getTodayDate()
-        val todaySchedule = schedule.days.firstOrNull {
-            day -> day.day == todayDate
+        val todaySchedule = schedule.days.firstOrNull { day ->
+            day.day == todayDate
         } ?: Day(getTodayDate(), null, null, null, null)
         return todaySchedule
     }
 
-    private fun getTodayDate(): String {
-        val currTime = Calendar.getInstance()
-        return SimpleDateFormat("MMMM d, yyyy", Locale.US).format(currTime.time)
-    }
-
-    private fun getEndTime(startTime: String, duration: Int): String {
-        val parts = startTime.split(":")
-        val hours = parts[0].toInt()
-        val minutes = parts[1].toInt()
-
-        var newHours = hours
-        var newMinutes = minutes + duration
-
-        if (newMinutes >= 60) {
-            newHours += newMinutes / 60
-            newMinutes %= 60
-        }
-
-        return String.format("%02d:%02d", newHours, newMinutes)
-    }
-
-    fun getPeriod(todaySchedule: Day, currTime: Calendar): Period {
+//    Returns the current period given a schedule and a time.
+    fun getCurrentPeriod(todaySchedule: Day, currTime: Calendar): Period {
         todaySchedule.bell?.let { bell ->
             bell.schedule.forEach {
                 val startTimeComponents = it.startTime.split(":")

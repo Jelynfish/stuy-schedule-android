@@ -63,7 +63,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
             .padding(12.dp))
     {
-        //Announcement Box
+//        Announcement Box
         uiState.todaySchedule.announcement?.let {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -89,7 +89,7 @@ fun HomeScreen(
         }
             ?: Spacer(Modifier.height(80.dp))
 
-        //Schedule Box
+//        Schedule Box
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
@@ -98,6 +98,8 @@ fun HomeScreen(
                 "Today's Schedule",
                 style = MaterialTheme.typography.titleLarge
             )
+
+//            Today's schedule information
             uiState.todaySchedule.bell?.let {
                 Text(
                     text = it.scheduleName,
