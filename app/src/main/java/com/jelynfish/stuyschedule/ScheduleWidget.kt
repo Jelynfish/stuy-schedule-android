@@ -70,7 +70,7 @@ class ScheduleWidget : AppWidgetProvider() {
 
                 // Determine the current period
                 val currTime = Calendar.getInstance()
-                val currentPeriod = todaySchedule.let { repo.getPeriod(it, currTime) }
+                val currentPeriod = todaySchedule.let { repo.getCurrentPeriod(it, currTime) }
                 val timeElapsed = getTimeElapsed(currTime, currentPeriod.startTime)
 
                 // Update the widget with the current period

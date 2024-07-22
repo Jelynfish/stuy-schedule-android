@@ -24,6 +24,9 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
         getWeekly()
     }
 
+//    Get weekly schedule from the repo (API or Local)
+//    Update the schedule in the UI
+//    Set today's schedule
     private fun getWeekly() {
         viewModelScope.launch {
             val schedule = scheduleRepo.getWeeklySchedule()
@@ -34,15 +37,22 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
         }
     }
 
+//    Refresh the weekly schedule using the API
+//    Update the schedule in the UI
+//    Set today's schedule
     fun refreshSchedule() {
         viewModelScope.launch {
             val schedule = scheduleRepo.refreshWeeklySchedule()
             _uiState.value = _uiState.value.copy(
                 schedule = schedule
             )
+            getTodaySchedule()
         }
     }
 
+//    Using the current schedule in the UI
+//    Get today's update data
+//    Update today's schedule data
     private fun getTodaySchedule() {
         val schedule = _uiState.value.schedule
         val todaySchedule = scheduleRepo.getTodaySchedule(schedule)
@@ -51,9 +61,10 @@ class ScheduleVM(app: Application) : AndroidViewModel(app) {
         )
     }
 
+//    Return the current period using today's schedule.
     fun whatPeriod(currTime: Calendar): Period {
         val todaySchedule = _uiState.value.todaySchedule
-        return scheduleRepo.getPeriod(todaySchedule, currTime)
+        return scheduleRepo.getCurrentPeriod(todaySchedule, currTime)
     }
 }
 
