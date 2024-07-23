@@ -16,4 +16,8 @@
     <string name="default_time_left">30</string>
     <string name="minutes_into">Minutes Into</string>
     <string name="minutes_left">Minutes Left</string>
+
+    <string name="no_school">No School</string>
+    <string name="default_before_school_data">Today is an A day with Math Testing</string>
+    <string name="default_after_school_data">Tomorrow is an A day with Math Testing</string>
 </resources>

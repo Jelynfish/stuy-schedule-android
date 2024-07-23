@@ -1,6 +1,7 @@
 package com.jelynfish.stuyschedule.api
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import com.jelynfish.stuyschedule.utils.getEndTime
 import com.jelynfish.stuyschedule.utils.getTodayDate
@@ -77,6 +78,7 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
 //    From the schedule data, returns today's schedule data
     fun getTodaySchedule(schedule: ApiData): Day {
         val todayDate = getTodayDate()
+        Log.d("ScheduleRepo", "Today is ${todayDate}.")
         val todaySchedule = schedule.days.firstOrNull { day ->
             day.day == todayDate
         } ?: Day(getTodayDate(), null, null, null, null)

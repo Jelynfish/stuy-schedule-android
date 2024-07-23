@@ -24,22 +24,18 @@ class ScheduleWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        // There may be multiple widgets active, so update all of them
         updateWidgets(context, appWidgetManager, appWidgetIds)
-//        DailyUpdateWorker.scheduleDailyWork(context)
-        scheduleNextUpdate(context)
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        scheduleNextUpdate(context)
-        // Register service
-//        val serviceIntent = Intent(context, TimeTickService::class.java)
-//        context.startService(serviceIntent)
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val thisAppWidget = ComponentName(context.packageName, javaClass.name)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget)
+        updateWidgets(context, appWidgetManager, appWidgetIds)
     }
 
     override fun onDisabled(context: Context) {
-        // Enter relevant functionality for when the last widget is disabled
         super.onDisabled(context)
         cancelUpdates(context)
     }
@@ -47,7 +43,7 @@ class ScheduleWidget : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         intent.action?.let { Log.d("ScheduleWidget", "Received intent action: $it") }
-        if (intent.action == UPDATE_WIDGET_ACTION) {
+        if (intent.action == UPDATE_WIDGET_ACTION || intent.action == Intent.ACTION_BOOT_COMPLETED) {
             Log.d("ScheduleWidget", "I received a scheduled update.")
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val thisAppWidget = ComponentName(context.packageName, javaClass.name)
@@ -73,9 +69,25 @@ class ScheduleWidget : AppWidgetProvider() {
                 val currentPeriod = todaySchedule.let { repo.getCurrentPeriod(it, currTime) }
                 val timeElapsed = getTimeElapsed(currTime, currentPeriod.startTime)
 
+                // Determine the layout based on the hour
+                val hour = currTime.get(Calendar.HOUR_OF_DAY)
+
+                val layoutId =
+                    if (todaySchedule.bell == null) { // No School
+                        R.layout.no_school_layout
+                    } else {
+                        if (hour < 7) {
+                            R.layout.before_school_layout
+                        } else if (hour > 15) {
+                            R.layout.after_school_layout
+                        } else {
+                            R.layout.schedule_widget
+                        }
+                    }
+
                 // Update the widget with the current period
                 appWidgetIds.forEach { appWidgetId ->
-                    val views = RemoteViews(context.packageName, R.layout.schedule_widget)
+                    val views = RemoteViews(context.packageName, layoutId)
                     views.setTextViewText(R.id.curr_period, currentPeriod.name)
                     views.setTextViewText(R.id.time_into, timeElapsed.toString())
                     views.setTextViewText(
@@ -92,25 +104,13 @@ class ScheduleWidget : AppWidgetProvider() {
                     }
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
+                Log.d("ScheduleWidget", "Updated the widget.")
+
+                scheduleNextUpdate(context, layoutId)
             }
-            Log.d("ScheduleWidget", "Updated the widget.")
         }
 
-        fun scheduleNextUpdate(context: Context) {
-            val currTime = Calendar.getInstance()
-            val beforeSchool = Calendar.getInstance().apply {
-                timeInMillis = currTime.timeInMillis
-                set(Calendar.HOUR_OF_DAY, 7)
-                set(Calendar.MINUTE, 30)
-                set(Calendar.SECOND, 0)
-            }
-            val afterSchool = Calendar.getInstance().apply {
-                timeInMillis = currTime.timeInMillis
-                set(Calendar.HOUR_OF_DAY, 15)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-            }
-
+        fun scheduleNextUpdate(context: Context, layoutId: Int) {
             Log.d("ScheduleWidget", "Scheduling next update")
             val intent = Intent(context, ScheduleWidget::class.java).apply {
                 action = UPDATE_WIDGET_ACTION
@@ -124,17 +124,20 @@ class ScheduleWidget : AppWidgetProvider() {
             )
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-            if (currTime < beforeSchool) Log.d("ScheduleWidget", "Time is before school. Stopping per minute update..")
-            else if (currTime > afterSchool) Log.d("ScheduleWidget", "It is after school hours. Stopping per minute update.")
-            else {
-                val triggerAtMillis = SystemClock.elapsedRealtime() + 60000
-                Log.d("ScheduleWidget", "Scheduling alarm at $triggerAtMillis")
-                alarmManager.set(
-                    AlarmManager.ELAPSED_REALTIME,
-                    triggerAtMillis,
-                    pendingIntent
-                )
-                Log.d("ScheduleWidget", "Next update scheduled.")
+            when (layoutId) {
+                R.layout.no_school_layout -> Log.d("ScheduleWidget", "There is no school today. Stopping per minute update.")
+                R.layout.before_school_layout -> Log.d("ScheduleWidget", "Time is before school. Stopping per minute update..")
+                R.layout.after_school_layout -> Log.d("ScheduleWidget", "It is after school hours. Stopping per minute update.")
+                else -> { // During school
+                    val triggerAtMillis = SystemClock.elapsedRealtime() + 60000
+                    Log.d("ScheduleWidget", "Scheduling alarm at $triggerAtMillis")
+                    alarmManager.set(
+                        AlarmManager.ELAPSED_REALTIME,
+                        triggerAtMillis,
+                        pendingIntent
+                    )
+                    Log.d("ScheduleWidget", "Next update scheduled.")
+                }
             }
         }
 
