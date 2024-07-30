@@ -3,8 +3,10 @@ package com.jelynfish.stuyschedule.api
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import com.jelynfish.stuyschedule.utils.aOrAn
 import com.jelynfish.stuyschedule.utils.getEndTime
 import com.jelynfish.stuyschedule.utils.getTodayDate
+import com.jelynfish.stuyschedule.utils.getTomorrowDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -81,8 +83,34 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
         Log.d("ScheduleRepo", "Today is ${todayDate}.")
         val todaySchedule = schedule.days.firstOrNull { day ->
             day.day == todayDate
-        } ?: Day(getTodayDate(), null, null, null, null)
+        } ?: Day(todayDate, null, null, null, null)
         return todaySchedule
+    }
+
+//    From the schedule data, returns tomorrow's schedule data
+    fun getTomorrowSchedule(schedule: ApiData): Day {
+        val tomorrowDate = getTomorrowDate()
+        Log.d("ScheduleRepo", "Tomorrow is ${tomorrowDate}.")
+        val tomorrowSchedule = schedule.days.firstOrNull { day ->
+            day.day == tomorrowDate
+        } ?: Day(tomorrowDate, null, null, null, null)
+        return tomorrowSchedule
+    }
+
+//    Gets the message for block and testing information
+    fun getBlockTestingMessage(dayItem: Day, isTomorrow: Boolean): String {
+        var message = if (!isTomorrow) "Today is " else "Tomorrow is "
+        if (dayItem.block != null) {
+            val day = dayItem.block
+            message += "${aOrAn(day)} $day day"
+            if (dayItem.testing != null && dayItem.testing != "No Testing")
+             message += " with ${dayItem.testing}"
+        } else {
+            message = "No School "
+            message += if (!isTomorrow) "Today" else "Tomorrow"
+        }
+        Log.d("Schedule Repo", "Message: $message")
+        return message
     }
 
 //    Returns the current period given a schedule and a time.

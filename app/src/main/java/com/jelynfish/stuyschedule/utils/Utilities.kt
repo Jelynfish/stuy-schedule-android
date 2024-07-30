@@ -8,6 +8,21 @@ fun getTodayDate(): String {
     val currTime = Calendar.getInstance()
     return SimpleDateFormat("MMMM d, yyyy", Locale.US).format(currTime.time)
 }
+
+fun getTomorrowDate(): String {
+    val currTime = Calendar.getInstance()
+    currTime.add(Calendar.DAY_OF_YEAR, 1)
+    return SimpleDateFormat("MMMM d, yyyy", Locale.US).format(currTime.time)
+}
+
+fun aOrAn(preceding: String): String {
+    val string = preceding.uppercase()
+    string[0].let {
+        if (it == 'A' || it == 'E' || it == 'I' || it == 'O' || it == 'U') return "an"
+        return "a"
+    }
+}
+
 fun getTimeElapsed(currentTime: Calendar, startTime: String): Long {
     val currentTimeMillis = currentTime.timeInMillis
     val startTimeMillis = parseStartTimeToMillis(startTime)
@@ -37,33 +52,4 @@ fun getEndTime(startTime: String, duration: Int): String {
     }
 
     return String.format("%02d:%02d", newHours, newMinutes)
-}
-
-// Int function that returns
-// -1 if the current time is BEFORE SCHOOL
-// 0 if the current time is DURING SCHOOL
-// 1 if the current time is AFTER SCHOOL
-const val BEFORE_SCHOOL = -1
-const val DURING_SCHOOL = 0
-const val AFTER_SCHOOL = 1
-
-fun isSchoolHours(): Int {
-    val currTime = Calendar.getInstance()
-    val beforeSchool = Calendar.getInstance().apply {
-        timeInMillis = currTime.timeInMillis
-        set(Calendar.HOUR_OF_DAY, 6)
-        set(Calendar.MINUTE, 59)
-        set(Calendar.SECOND, 69)
-    }
-
-    val afterSchool = Calendar.getInstance().apply {
-        timeInMillis = currTime.timeInMillis
-        set(Calendar.HOUR_OF_DAY, 17)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-    }
-
-    return if (currTime.before(beforeSchool)) BEFORE_SCHOOL
-    else if (currTime.after(afterSchool)) DURING_SCHOOL
-    else AFTER_SCHOOL
 }

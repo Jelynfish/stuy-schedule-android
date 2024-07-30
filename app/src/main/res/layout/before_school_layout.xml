@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:text="@string/default_after_school_data"
+        android:text="@string/default_before_school_data"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textAlignment="center"

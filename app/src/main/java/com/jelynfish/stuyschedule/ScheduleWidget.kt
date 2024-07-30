@@ -63,6 +63,7 @@ class ScheduleWidget : AppWidgetProvider() {
                 val repo = ScheduleRepo(context, ApiClient.api)
                 val schedule = repo.getWeeklySchedule()
                 val todaySchedule = repo.getTodaySchedule(schedule)
+                val tomorrowSchedule = repo.getTomorrowSchedule(schedule)
 
                 // Determine the current period
                 val currTime = Calendar.getInstance()
@@ -89,18 +90,26 @@ class ScheduleWidget : AppWidgetProvider() {
                 appWidgetIds.forEach { appWidgetId ->
                     val views = RemoteViews(context.packageName, layoutId)
                     views.setTextViewText(R.id.curr_period, currentPeriod.name)
-                    views.setTextViewText(R.id.time_into, timeElapsed.toString())
-                    views.setTextViewText(
-                        R.id.time_left,
-                        (currentPeriod.duration - timeElapsed).toString()
-                    )
-                    todaySchedule.block?.let {
-                        views.setTextViewText(R.id.curr_day, todaySchedule.block)
-                    } ?: {
+
+                    if (layoutId == R.layout.no_school_layout || layoutId == R.layout.after_school_layout) {
+                        val message = repo.getBlockTestingMessage(tomorrowSchedule, true)
+                        views.setTextViewText(R.id.after_day_data, message)
+                    }
+
+                    if (layoutId == R.layout.before_school_layout) {
+                        val message = repo.getBlockTestingMessage(todaySchedule, false)
+                        views.setTextViewText(R.id.before_day_data, message)
+                    }
+
+                    if (layoutId == R.layout.schedule_widget) {
+                        views.setTextViewText(R.id.time_into, timeElapsed.toString())
                         views.setTextViewText(
-                            R.id.curr_day,
-                            "No School"
+                            R.id.time_left,
+                            (currentPeriod.duration - timeElapsed).toString()
                         )
+                        todaySchedule.block?.let {
+                            views.setTextViewText(R.id.curr_day, todaySchedule.block)
+                        } ?: { views.setTextViewText(R.id.curr_day, "No School") }
                     }
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
@@ -110,7 +119,7 @@ class ScheduleWidget : AppWidgetProvider() {
             }
         }
 
-        fun scheduleNextUpdate(context: Context, layoutId: Int) {
+        private fun scheduleNextUpdate(context: Context, layoutId: Int) {
             Log.d("ScheduleWidget", "Scheduling next update")
             val intent = Intent(context, ScheduleWidget::class.java).apply {
                 action = UPDATE_WIDGET_ACTION
