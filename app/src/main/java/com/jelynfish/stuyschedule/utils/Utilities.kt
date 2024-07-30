@@ -53,3 +53,18 @@ fun getEndTime(startTime: String, duration: Int): String {
 
     return String.format("%02d:%02d", newHours, newMinutes)
 }
+
+// Int function that returns
+// -1 if the current time is BEFORE SCHOOL
+// 0 if the current time is DURING SCHOOL
+// 1 if the current time is AFTER SCHOOL
+const val BEFORE_SCHOOL = -1
+const val DURING_SCHOOL = 0
+const val AFTER_SCHOOL = 1
+fun isSchoolHours(currTime: Calendar): Int {
+    val hour = currTime.get(Calendar.HOUR_OF_DAY)
+
+    return if (hour < 7) BEFORE_SCHOOL
+    else if (hour > 15) AFTER_SCHOOL
+    else DURING_SCHOOL
+}

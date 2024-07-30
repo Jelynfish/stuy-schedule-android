@@ -12,7 +12,10 @@ import android.util.Log
 import android.widget.RemoteViews
 import com.jelynfish.stuyschedule.api.ApiClient
 import com.jelynfish.stuyschedule.api.ScheduleRepo
+import com.jelynfish.stuyschedule.utils.AFTER_SCHOOL
+import com.jelynfish.stuyschedule.utils.BEFORE_SCHOOL
 import com.jelynfish.stuyschedule.utils.getTimeElapsed
+import com.jelynfish.stuyschedule.utils.isSchoolHours
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,18 +74,22 @@ class ScheduleWidget : AppWidgetProvider() {
                 val timeElapsed = getTimeElapsed(currTime, currentPeriod.startTime)
 
                 // Determine the layout based on the hour
-                val hour = currTime.get(Calendar.HOUR_OF_DAY)
+                val schoolHours = isSchoolHours(currTime)
 
                 val layoutId =
                     if (todaySchedule.bell == null) { // No School
                         R.layout.no_school_layout
                     } else {
-                        if (hour < 7) {
-                            R.layout.before_school_layout
-                        } else if (hour > 15) {
-                            R.layout.after_school_layout
-                        } else {
-                            R.layout.schedule_widget
+                        when (schoolHours) {
+                            BEFORE_SCHOOL -> {
+                                R.layout.before_school_layout
+                            }
+                            AFTER_SCHOOL -> {
+                                R.layout.after_school_layout
+                            }
+                            else -> {
+                                R.layout.schedule_widget
+                            }
                         }
                     }
 
@@ -91,7 +98,17 @@ class ScheduleWidget : AppWidgetProvider() {
                     val views = RemoteViews(context.packageName, layoutId)
                     views.setTextViewText(R.id.curr_period, currentPeriod.name)
 
-                    if (layoutId == R.layout.no_school_layout || layoutId == R.layout.after_school_layout) {
+                    if (layoutId == R.layout.no_school_layout) {
+                        val message =
+                            if (schoolHours != AFTER_SCHOOL)
+                                "No School"
+                            else
+                                repo.getBlockTestingMessage(tomorrowSchedule, true)
+
+                        views.setTextViewText(R.id.no_school, message)
+                    }
+
+                    if (layoutId == R.layout.after_school_layout) {
                         val message = repo.getBlockTestingMessage(tomorrowSchedule, true)
                         views.setTextViewText(R.id.after_day_data, message)
                     }
