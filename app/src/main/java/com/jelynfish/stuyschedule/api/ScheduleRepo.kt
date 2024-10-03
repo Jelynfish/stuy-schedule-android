@@ -152,4 +152,12 @@ class ScheduleRepo(private val context: Context, private val api: ApiService) {
             duration = 1440
         )
     }
+
+//    Testing Data Loading
+//    fun getTestData(): ApiData {
+//        val file = context.assets.open("local.json")
+//            .bufferedReader()
+//        val jsonString = file.readText()
+//        return Gson().fromJson(jsonString, ApiData::class.java)
+//    }
 }

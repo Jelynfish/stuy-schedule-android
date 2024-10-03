@@ -2,7 +2,7 @@
   "scheduleType": "week",
   "days": [
     {
-      "day": "May 13, 2024",
+      "day": "September 30, 2024",
       "bell": {
         "scheduleType": "regular",
         "scheduleName": "Regular Schedule",
@@ -124,7 +124,7 @@
       "announcement": "Report Card Distribution, AP Calc AB @ 8 am, AP Precalc @ 12 pm"
     },
     {
-      "day": "May 14, 2024",
+      "day": "October 1, 2024",
       "bell": {
         "scheduleType": "regular",
         "scheduleName": "Regular Schedule",
@@ -246,7 +246,7 @@
       "announcement": "AP Lang @ 8am, AP AAS @ 12pm, AP Phys C Mech @ 12pm, AP Phys C E&M @ 2pm"
     },
     {
-      "day": "May 15, 2024",
+      "day": "October 2, 2024",
       "bell": {
         "scheduleType": "conference",
         "scheduleName": "Conference Schedule",
@@ -368,7 +368,7 @@
       "announcement": "AP Music Theory @ 12pm"
     },
     {
-      "day": "May 16, 2024",
+      "day": "October 3, 2024",
       "bell": {
         "scheduleType": "regular",
         "scheduleName": "Regular Schedule",
@@ -490,7 +490,7 @@
       "announcement": "AP Spanish @ 8am, AP Bio @ 12pm"
     },
     {
-      "day": "May 17, 2024",
+      "day": "October 4, 2024",
       "bell": {
         "scheduleType": "regular",
         "scheduleName": "Regular Schedule",

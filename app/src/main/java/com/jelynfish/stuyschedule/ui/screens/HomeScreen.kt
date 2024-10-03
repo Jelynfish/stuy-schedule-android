@@ -63,114 +63,117 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
             .padding(12.dp))
     {
-//        Announcement Box
-        uiState.todaySchedule.announcement?.let {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(color = Color.LightGray)
-                    .padding(12.dp)
-            ) {
-                Text(
-                    "Announcement",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(8.dp)
-                )
-                Text(
-                    it.replace(',', '\n'),
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(Modifier.height(12.dp))
-            }
-            Spacer(Modifier.height(20.dp))
-        }
-            ?: Spacer(Modifier.height(80.dp))
-
-//        Schedule Box
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.weight(9f)
         ) {
-            Text(
-                "Today's Schedule",
-                style = MaterialTheme.typography.titleLarge
-            )
-
-//            Today's schedule information
-            uiState.todaySchedule.bell?.let {
-                Text(
-                    text = it.scheduleName,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 8.dp)
-                )
+//        Announcement Box
+            uiState.todaySchedule.announcement?.let {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(color = Color.LightGray)
+                        .background(color = MaterialTheme.colorScheme.primaryContainer)
                         .padding(12.dp)
                 ) {
-                    Text(text = "Current Period")
                     Text(
-                        currentPeriod.name,
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold
+                        "Announcement",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(8.dp)
                     )
                     Text(
-                        text = uiState.todaySchedule.block ?: "No School",
+                        it.replace(',', '\n'),
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(Modifier.height(12.dp))
+                }
+                Spacer(Modifier.height(20.dp))
+            }
+                ?: Spacer(Modifier.height(80.dp))
+
+//        Schedule Box
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    "Today's Schedule",
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+//            Today's schedule information
+                uiState.todaySchedule.bell?.let {
+                    Text(
+                        text = it.scheduleName,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(0.dp, 6.dp, 0.dp, 0.dp)
+                        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 8.dp)
                     )
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(color = MaterialTheme.colorScheme.primaryContainer)
+                            .padding(12.dp)
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(12.dp)
+                        Text(text = "Current Period")
+                        Text(
+                            currentPeriod.name,
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = uiState.todaySchedule.block ?: "No School",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(0.dp, 6.dp, 0.dp, 0.dp)
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
-                                text = "Minutes Into",
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                            Text(
-                                text = "$timeElapsed",
-                                color = Color.Green,
-                                style = MaterialTheme.typography.displayMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(12.dp)
-                        ) {
-                            Text(
-                                text = "Minutes to End",
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                            Text(
-                                text = "${currentPeriod.duration - timeElapsed}",
-                                color = Color.Red,
-                                style = MaterialTheme.typography.displayMedium,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(12.dp)
+                            ) {
+                                Text(
+                                    text = "Minutes Into",
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                Text(
+                                    text = "$timeElapsed",
+                                    color = Color.Green,
+                                    style = MaterialTheme.typography.displayMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(12.dp)
+                            ) {
+                                Text(
+                                    text = "Minutes to End",
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                                Text(
+                                    text = "${currentPeriod.duration - timeElapsed}",
+                                    color = Color.Red,
+                                    style = MaterialTheme.typography.displayMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
+                    ?: Text(
+                        text = uiState.todaySchedule.bell?.scheduleName ?: "No school",
+                        style = MaterialTheme.typography.displayLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 8.dp)
+                    )
             }
-                ?: Text(
-                    text = uiState.todaySchedule.bell?.scheduleName ?: "No school",
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 8.dp)
-                )
         }
-
         //Refresh Button
         Box(
             contentAlignment = Alignment.Center,
